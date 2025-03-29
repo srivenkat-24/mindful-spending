@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mindful Spending</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 min-h-screen flex items-center justify-center">
+  <div class="flex flex-col md:flex-row items-center space-x-0 md:space-x-10 space-y-10 md:space-y-0">
+    <!-- Main Menu -->
+    <div class="bg-white p-8 rounded-2xl shadow-md w-80">
+      <h1 class="text-2xl font-bold text-green-700 mb-6 flex items-center justify-center">
+        <span class="mr-2">🌿</span> Mindful Spending
+      </h1>
+      <div class="flex flex-col space-y-4">
+        <button id="toggleGoals" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+          ➕ Add Goals
+        </button>
+        <button id="toggleSpending" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+          🔍 Check Spending
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Goals Form -->
+    <div id="goalForm" class="bg-white p-8 rounded-2xl shadow-md w-96 hidden">
+      <h2 class="text-xl font-semibold text-green-700 mb-4">Add Goals</h2>
+      <form id="goals" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Short-Term Goal</label>
+          <input id="shortTermGoal" type="text" placeholder="e.g. New Phone" class="mt-1 w-full p-2 rounded bg-gray-900 text-white" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Amount (₹)</label>
+          <input id="shortTermAmount" type="number" class="mt-1 w-full p-2 rounded bg-gray-900 text-white" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Long-Term Goal</label>
+          <input id="longTermGoal" type="text" placeholder="e.g. Europe Trip" class="mt-1 w-full p-2 rounded bg-gray-900 text-white" required />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Amount (₹)</label>
+          <input id="longTermAmount" type="number" class="mt-1 w-full p-2 rounded bg-gray-900 text-white" required />
+        </div>
+        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+          💾 Save Goals
+        </button>
+        <button type="button" onclick="document.getElementById('goalForm').classList.add('hidden')" class="w-full bg-gray-300 text-black py-2 px-4 rounded hover:bg-gray-400 transition">
+          ← Back
+        </button>
+      </form>
+    </div>
+
+    <!-- Check Spending Section -->
+    <div id="checkSection" class="bg-white p-8 rounded-2xl shadow-md w-96 hidden">
+      <h2 class="text-xl font-semibold text-green-700 mb-4">Check Spending</h2>
+      <form id="spendingForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Spending Amount (₹)</label>
+          <input id="spendingInput" type="number" class="mt-1 w-full p-2 rounded bg-gray-900 text-white" required />
+        </div>
+        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+          ✅ Check Now
+        </button>
+        <div id="spendingOutput" class="mt-4 space-y-4 hidden">
+          <div>
+            <p class="text-sm font-medium text-gray-700">Short-Term Goal Progress</p>
+            <div class="w-full bg-gray-200 rounded-full h-4">
+              <div id="shortTermProgress" class="bg-green-500 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="shortTermText" class="text-sm mt-1 text-gray-600"></p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-700">Long-Term Goal Progress</p>
+            <div class="w-full bg-gray-200 rounded-full h-4">
+              <div id="longTermProgress" class="bg-blue-500 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="longTermText" class="text-sm mt-1 text-gray-600"></p>
+          </div>
+        </div>
+        <button type="button" onclick="document.getElementById('checkSection').classList.add('hidden')" class="w-full bg-gray-300 text-black py-2 px-4 rounded hover:bg-gray-400 transition">
+          ← Back
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const toggleGoalsBtn = document.getElementById('toggleGoals');
+    const goalForm = document.getElementById('goalForm');
+
+    const toggleSpendingBtn = document.getElementById('toggleSpending');
+    const checkSection = document.getElementById('checkSection');
+
+    let goalsData = {
+      shortTerm: 0,
+      longTerm: 0
+    };
+
+    toggleGoalsBtn.addEventListener('click', () => {
+      goalForm.classList.toggle('hidden');
+    });
+
+    toggleSpendingBtn.addEventListener('click', () => {
+      checkSection.classList.toggle('hidden');
+    });
+
+    document.getElementById('goals').addEventListener('submit', function (e) {
+      e.preventDefault();
+      goalsData.shortTerm = parseFloat(document.getElementById('shortTermAmount').value);
+      goalsData.longTerm = parseFloat(document.getElementById('longTermAmount').value);
+      goalForm.classList.add('hidden');
+    });
+
+    document.getElementById('spendingForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const spend = parseFloat(document.getElementById('spendingInput').value);
+      const output = document.getElementById('spendingOutput');
+
+      if (goalsData.shortTerm && goalsData.longTerm && spend >= 0) {
+        const shortPct = Math.min((spend / goalsData.shortTerm) * 100, 100);
+        const longPct = Math.min((spend / goalsData.longTerm) * 100, 100);
+
+        document.getElementById('shortTermProgress').style.width = shortPct + '%';
+        document.getElementById('shortTermText').textContent = `${shortPct.toFixed(1)}% of Short-Term Goal`;
+
+        document.getElementById('longTermProgress').style.width = longPct + '%';
+        document.getElementById('longTermText').textContent = `${longPct.toFixed(1)}% of Long-Term Goal`;
+
+        output.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
